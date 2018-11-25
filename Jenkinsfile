@@ -3,23 +3,19 @@ pipeline {
     stages {
         stage('checkout') { 
             steps {
-             git 'https://github.com/spring-projects/spring-petclinic.git'
+                 git 'https://github.com/cjpcloud/warrepo.git'
 
             }
         }
-        stage('Build&Code Quality') { 
+        stage('Build') { 
             steps {
-          withSonarQubeEnv('SonarQube') {
-                 sh 'mvn clean package sonar:sonar' 
+                sh 'mvn clean package'
             }
         }
-        }
-        stage('Junit') { 
+        stage('Deploy') { 
             steps {
-              junit 'target/surefire-reports/*.xml'
-  
+                s3Upload consoleLogLevel: 'INFO', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'demo985', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: '**/*.war', storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'SUCCESS', profileName: 'bucket', userMetadata: []
             }
         }
-        
     }
 }
